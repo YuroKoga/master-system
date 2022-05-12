@@ -11,6 +11,8 @@ Route::get('/', function () {
 // });
 
 // use \App\Http\Middleware\HelloMiddleware; を追記
+// Route::get('hello', 'App\Http\Controllers\HelloController@index')
+//     ->middleware('hello');
 
-Route::get('hello', 'App\Http\Controllers\HelloController@index')
-	->middleware(\App\Http\Middleware\HelloMiddleware::class);
+Route::get('hello', 'App\Http\Controllers\HelloController@index');
+Route::post('hello', 'App\Http\Controllers\HelloController@post');
