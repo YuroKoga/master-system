@@ -10,9 +10,24 @@ Route::get('/', function () {
 //     return view('hello.index');
 // });
 
-// use \App\Http\Middleware\HelloMiddleware; を追記
-// Route::get('hello', 'App\Http\Controllers\HelloController@index')
-//     ->middleware('hello');
+Auth::routes();
 
-Route::get('hello', 'App\Http\Controllers\HelloController@index');
-Route::post('hello', 'App\Http\Controllers\HelloController@post');
+Route::group(['middleware' => 'auth'], function () {
+    Route::get('/', 'App\Http\Controllers\HomeController@index')->name('index');
+    Route::get('/home', 'App\Http\Controllers\HomeController@index')->name('home');
+    Route::get('/planning', 'App\Http\Controllers\HomeController@planning')->name('planning');
+    Route::post('/store', 'App\Http\Controllers\HomeController@store')->name('store');
+    Route::get('/edit/{id}', 'App\Http\Controllers\HomeController@edit')->name('edit');
+    Route::post('/update/{id}', 'App\Http\Controllers\HomeController@update')->name('update');
+    Route::post('/delete/{id}', 'App\Http\Controllers\HomeController@delete')->name('delete');
+});
+
+Route::middleware([
+    'auth:sanctum',
+    config('jetstream.auth_session'),
+    'verified'
+])->group(function () {
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
+});
