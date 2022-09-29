@@ -1,37 +1,13 @@
 @extends('layouts.new-master')
+@section('page_title')
+    バーチャル街歩き体験
+@endsection
 @section('script')
-    {{-- -----------------------------------------------------
-     マップについての処理
-    ----------------------------------------------------- --}}
-    <script>
-        console.log('script OK?');
-        //機能の呼び出し
-        require([
-            "esri/Map",
-            "esri/views/MapView"
-
-        ], function(
-            Map,
-            MapView,
-        ) {
-            //ベース地図の呼び出し
-            const map = new Map({
-                basemap: "streets"
-            });
-            //表示範囲の指定
-            const view = new MapView({
-                container: "divMapView",
-                map: map,
-                center: [136.570, 36.479],
-                zoom: 11
-            });
-        });
-    </script>
 @endsection
 
 @section('content')
     <!-- Page Heading -->
-    <div class="d-none d-sm-flex align-items-center justify-content-between mb-4">
+    <div class="d-none d-md-flex px-md-4 align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">バーチャル街歩き体験</h1>
         <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
                 class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
@@ -40,12 +16,24 @@
     <!-- Content Row -->
     <div class="row">
 
-        <!-- Scene View -->
+        <!-- GISを表示するカード -->
         <div class="col-xl-9 col-lg-8 mh-100">
             <div class="card shadow mb-0">
                 <!-- Card Header - Dropdown -->
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Scene view</h6>
+                <div class="card-header d-flex flex-row align-items-center justify-content-between">
+                    <!-- タブ -->
+                    <ul class="nav nav-pills card-header-pills" id="mapTab" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#pills-2Dmap" id="pills-2Dmap-tab" data-toggle="pill"
+                                role="tab" aria-controls="pills-2Dmap" aria-selected="true">2Dマップ</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#pills-3Dmap" id="pills-3Dmap-tab" data-toggle="pill" role="tab"
+                                aria-controls="pills-3Dmap" aria-selected="false">3Dマップ</a>
+                        </li>
+                    </ul>
+                    <!-- 以上タブ -->
+                    <!-- ドロップダウン -->
                     <div class="dropdown no-arrow">
                         <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -60,45 +48,55 @@
                             <a class="dropdown-item" href="#">Something else here</a>
                         </div>
                     </div>
+                    <!-- 以上ドロップダウン -->
                 </div>
+
                 <!-- Card Body -->
                 <div class="card-body p-0">
-                    <div class="chart-area" style="height: 70vh;">
-                        <!-- View を表示する要素 -->
-                        <div id="divMapView"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Play Button -->
-            <div class="mb-4">
-                <div class="card bg-Secondary shadow h-50 py-0">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col-auto mx-auto text-center">
-                                <i class="fas fa-backward fa-2x text-gray-600 w-100"></i>
-                                <span class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                    backward</span>
-                            </div>
-                            <div class="col-auto mx-auto text-center">
-                                <i class="fas fa-play fa-2x text-gray-600 w-100"></i>
-                                <span class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                    play</span>
-                            </div>
-                            <div class="col-auto mx-auto text-center">
-                                <i class="fas fa-forward fa-2x text-gray-600 w-100"></i>
-                                <span class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                    fast</span>
-                            </div>
-                            <div class="col-auto mx-auto text-center">
-                                <i class="fas fa-pause fa-2x text-gray-600 w-100"></i>
-                                <span class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                    pause</span>
+                    <!-- タブの内容 -->
+                    <div class="tab-content" id="pills-mapTabContent">
+                        <div class="tab-pane fade show active" id="pills-2Dmap" role="tabpanel"
+                            aria-labelledby="pills-2Dmap-tab">
+                            <!-- 2Dマップ を表示する要素 -->
+                            <div id="divMapView" style="height: calc(100vh - 300px);"></div>
+                        </div>
+                        <div class="tab-pane fade" id="pills-3Dmap" role="tabpanel" aria-labelledby="pills-3Dmap-tab">
+                            <!-- 3Dマップ を表示する要素 -->
+                            <div id='SceneOsaka' style="height: calc(100vh - 400px);"></div>
+                            <!-- Play Button -->
+                            <div class="card bg-Secondary shadow h-50 py-0">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col-auto mx-auto text-center">
+                                            <i class="fas fa-backward fa-2x text-gray-600 w-100"></i>
+                                            <span class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                backward</span>
+                                        </div>
+                                        <div class="col-auto mx-auto text-center">
+                                            <i class="fas fa-play fa-2x text-gray-600 w-100"></i>
+                                            <span class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                play</span>
+                                        </div>
+                                        <div class="col-auto mx-auto text-center">
+                                            <i class="fas fa-forward fa-2x text-gray-600 w-100"></i>
+                                            <span class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                fast</span>
+                                        </div>
+                                        <div class="col-auto mx-auto text-center">
+                                            <i class="fas fa-pause fa-2x text-gray-600 w-100"></i>
+                                            <span class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                pause</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
             </div>
+
+
         </div>
 
         <!-- Plan Timeline-->
@@ -161,4 +159,5 @@
                 </div>
             </div>
         </div>
+        <!-- End of Plan Timeline -->
     @endsection

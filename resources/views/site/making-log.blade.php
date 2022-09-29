@@ -1,38 +1,53 @@
 @extends('layouts.new-master')
+@section('page_title')
+    観光記録の作成
+@endsection
 @section('script')
     {{-- -----------------------------------------------------
-     マップについての処理
+    マップについての処理
     ----------------------------------------------------- --}}
-    <script>
-        console.log('script OK?');
-        //機能の呼び出し
-        require([
-            "esri/Map",
-            "esri/views/MapView"
+    <script language="javascript" type="text/javascript">
+        function loadLayers(layers) {
+            const ddLayerList = document.getElementById("ddLayerList");
+            layers.forEach(l => {
+                let o = document.createElement("option");
+                o.textContent = l.title;
+                o.layer = l;
+                ddLayerList.appendChild(o)
+            });
+        }
 
-        ], function(
-            Map,
-            MapView,
-        ) {
-            //ベース地図の呼び出し
-            const map = new Map({
-                basemap: "streets"
-            });
-            //表示範囲の指定
-            const view = new MapView({
-                container: "divMapView",
-                map: map,
-                center: [136.570, 36.479],
-                zoom: 11
-            });
-        });
+        require([
+                "esri/WebMap",
+                "esri/views/MapView",
+                "esri/widgets/Search",
+                "esri/widgets/ScaleBar",
+                "esri/Graphic",
+                "esri/tasks/RouteTask",
+                "esri/tasks/support/RouteParameters",
+                "esri/tasks/support/FeatureSet"
+            ],
+            (WebMap, MapView) => {
+                const map = new WebMap({
+                    "portalItem": {
+                        "id": "93fde900d72a4d98aeb21826749bdfb2"
+                    }
+                });
+                const view = new MapView({
+                    "container": "divMapView",
+                    "map": map
+                })
+
+                map.when(() => loadLayers(scene.layers))
+
+            })
     </script>
 @endsection
 
 @section('content')
     <!-- Page Heading -->
     <div class="d-none d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">バーチャル街歩き体験</h1>
+        <h1 class="h3 mb-0 text-gray-800">観光記録の作成</h1>
         <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
                 class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
     </div>

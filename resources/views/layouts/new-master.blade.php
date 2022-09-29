@@ -2,80 +2,449 @@
 <html lang="ja">
 
 <head>
+    @component('components.header')
+        @slot('page_title')
+            @yield('page_title')
+        @endslot
+    @endcomponent
+    <?php
+    //===============================================================
+    //  ■：観光プラン作成画面 making.php
+    //===============================================================
 
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="Yuro Koga">
+    //htmlspecialcharsを省略する関数
+    function h($s)
+    {
+        return htmlspecialchars($s, ENT_QUOTES, 'utf-8');
+    }
 
-    <title>{{ config('app.name', 'system') }}</title>
+    session_start(); //セッションスタート
 
-    <!-- Custom fonts for this template-->
-    {{-- <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css"> --}}
-    <script src="https://kit.fontawesome.com/ded3701551.js" crossorigin="anonymous"></script>
-    <link
-        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
-        rel="stylesheet">
+    //-----------------------------------------------------
+    //  〇：初めてこの画面に来たとき
+    //-----------------------------------------------------
+    //ログインしていない場合
+    // if (!isset($_SESSION['usr_id'])) {
+    //     header('location: login_page.php');
+    // }
 
-    <!-- Custom styles for this template-->
-    <link href="{{ asset('css/sb-admin-2.min.css') }}" rel="stylesheet">
+    // セッション配列に情報を格納
+    if (!isset($_SESSION['spot_plan'])) {
+        //  観光プランを格納するセッション配列を生成
+        $_SESSION['spot_plan'] = [];
+        $_SESSION['order'] = 0;
 
-    <style>
-        #divMapView {
-            padding: 0;
-            margin: 0;
-            width: 100%;
-            height: 100%;
+        //  スポットの情報をセッション配列に格納
+        $f = fopen('csv/spotlist_osaka.csv', 'r');
+        $i = 0;
+        while ($row = fgetcsv($f)) {
+            $_SESSION['spot_array'][$i]['No'] = $row[0]; // No(スポット番号)を格納
+            $_SESSION['spot_array'][$i]['name'] = $row[1]; // name(スポットの名称)を格納
+            $_SESSION['spot_array'][$i]['spot_lat'] = $row[2]; // spot_lat(経度)を格納
+            $_SESSION['spot_array'][$i]['spot_lng'] = $row[3]; // spot_lng(緯度)を格納
+            // $_SESSION['spot_array'][$i]['category'] = $row[4]; // category(カテゴリー)を格納
+            // $_SESSION['spot_array'][$i]['visible'] = $row[6]; // 表示するかどうかの値を格納
+            $i++;
         }
+        fclose($f);
+    }
 
-        #layerToggle {
-            bottom: 60px;
-            right: 10px;
-            position: absolute;
-            z-index: 99;
-            background-color: white;
-            border-radius: 8px;
-            padding: 10px;
-            opacity: 0.75;
-        }
-    </style>
+    //-----------------------------------------------------
+    //  〇：マップ表示
+    //  スポット情報をCSVファイルから取得し、JavaScriptへ渡す
+    //-----------------------------------------------------
 
+    $f = fopen('csv/spotlist_osaka.csv', 'r');
+    $i = 0;
+    while ($row = fgetcsv($f)) {
+        $spot_array[$i]['No'] = $row[0]; //Noを取得
+        $spot_array[$i]['name'] = $row[1]; //nameを取得
+        $spot_array[$i]['spot_lat'] = $row[2]; //spot_lat(経度)を取得
+        $spot_array[$i]['spot_lng'] = $row[3]; //spot_lng(緯度)を取得
+        // $spot_array[$i]['category'] = $row[4]; //categoryを取得
+        // $spot_array[$i]['visible'] = $row[6]; // 表示するかどうかの値を取得
+        ++$i;
+    }
+    fclose($f);
 
-    <!-- Bootstrap core JavaScript-->
-    <script src="{{ asset('js/jquery/jquery.min.js') }}"></script>
-    <script src="{{ asset('js/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-    {{-- <!-- jQueryをCDNから読み込み -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script> --}}
-
-    <!-- Core plugin JavaScript-->
-    <script src="{{ asset('js/jquery-easing/jquery.easing.min.js') }}"></script>
-
-    <!-- Custom scripts for all pages-->
-    <script src="{{ Asset('js/sb-admin-2.min.js') }}"></script>
-
-    <!-- Page level plugins -->
-    {{-- <script src="{{ asset('js/chart.js/Chart.min.js') }}"></script> --}}
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1"></script>
-
-    {{-- <!-- Chart.jsをCDNから読み込み -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.8.0/chart.min.js"></script> --}}
-
-
-    <!-- Page level custom scripts -->
-    {{-- <script src="{{ Asset('js/demo/chart-area-demo.js') }}"></script> --}}
-    {{-- <script src="{{ Asset('js/demo/chart-pie-demo.js') }}"></script> --}}
-
-    <!-- ArcGIS API for JavaScript の参照 -->
-    <link rel="stylesheet" href="https://js.arcgis.com/4.7/esri/css/main.css">
-    <script src="https://js.arcgis.com/4.7/"></script>
+    //-----------------------------------------------------
+    //  JavaScriptにjson形式で渡す
+    //-----------------------------------------------------
+    $spot_array = json_encode($spot_array); // スポット情報
+    $plan_array = json_encode($_SESSION['spot_plan']); //プランの情報
+    ?>
+    {{-- //-----------------------------------------------------
+    // マップについての処理
+    //----------------------------------------------------- --> --}}
     <script>
-        console.log('import arcgis OK?');
+        //-----------------------------------------------------
+        // CSVファイルの読み込み
+        //-----------------------------------------------------
+        let spotArray = <?php echo $spot_array; ?>;
+        let planArray = <?php echo $plan_array; ?>;
+
+        // 中心座標を最後に選択したスポットにする
+        // (最初は調布駅)
+        var def_zoom = 13;
+        if (!planArray.length && !newSpotArray.length) {
+            var def_lng = 139.5446124;
+            var def_lat = 35.6518205;
+        } else if (!newSpotArray.length) {
+            var def_lng = parseFloat(planArray[planArray.length - 1]['spot_lng']);
+            var def_lat = parseFloat(planArray[planArray.length - 1]['spot_lat']);
+        } else {
+            var def_lng = parseFloat(newSpotArray[0]['lng']);
+            var def_lat = parseFloat(newSpotArray[0]['lat']);
+            var def_zoom = parseInt(newSpotArray[0]['zoom']);
+        }
+
+        require([
+            // モジュールの読み込み
+            "esri/Map",
+            "esri/views/MapView",
+            "esri/widgets/Search",
+            "esri/widgets/ScaleBar",
+            "esri/Graphic",
+            "esri/tasks/RouteTask",
+            "esri/tasks/support/RouteParameters",
+            "esri/tasks/support/FeatureSet"
+        ], function(
+            Map,
+            MapView,
+            Search,
+            ScaleBar,
+            Graphic,
+            RouteTask,
+            RouteParameters,
+            FeatureSet
+        ) {
+            // Map の作成
+            const map = new Map({
+                basemap: "streets-navigation-vector", // "streets-navigation-vector"か"topo"が無難
+            });
+
+            // View の作成
+            var view = new MapView({
+                container: "viewMap", // View を表示する DOM ノードを参照
+                map: map, // map オブジェクトを参照
+                zoom: def_zoom,
+                center: {
+                    longitude: def_lng,
+                    latitude: def_lat
+                }
+            });
+
+            //ZOOMボタンの削除
+            view.ui.empty("top-left");
+
+            //----------
+            //検索の追加
+            //----------
+            var searchWidget = new Search({
+                view: view
+            });
+            view.ui.add(searchWidget, {
+                position: "top-right",
+                index: 2
+            });
+
+            //--------------
+            //スケールの追加
+            //--------------
+            // const scalebar = new ScaleBar({
+            //   view: view,
+            //   unit: "dual"
+            // });
+            // view.ui.add(scalebar, "bottom-left");
+
+            //------------
+            //ルートの追加
+            //------------
+
+            // ArcGISのルート機能を使用するための処理
+            var routeTask = new RouteTask({
+                // url: "https://route.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World"  // ログイン必要
+                url: "https://utility.arcgis.com/usrsvcs/appservices/kY3BNFUNyPBeKKwi/rest/services/World/Route/NAServer/Route_World/solve" //ログイン不要（山本研究室のArcGISのプロキシ）
+            });
+
+            const travelModeObject = {
+                "distanceAttributeName": "Kilometers",
+                "impedanceAttributeName": "Kilometers",
+                "simplificationToleranceUnits": "esriMeters",
+                "uturnAtJunctions": "esriNFSBAllowBacktrack",
+                "useHierarchy": false,
+                "name": "",
+                "simplificationTolerance": 2,
+                "timeAttributeName": "WalkTime",
+                "restrictionAttributeNames": ["Avoid Toll Roads", "Avoid Ferries"],
+                "type": "WALK",
+                "attributeParameterValues": [{}]
+            };
+
+            //-------------------------------
+            // ルートの表示
+            //-------------------------------
+            for (let i = 0; i < planArray.length; i++) {
+                planLng = parseFloat(planArray[i]['spot_lng']); //スポットの緯度
+                planLat = parseFloat(planArray[i]['spot_lat']); //スポットの経度
+                view.graphics.add({
+                    symbol: {
+                        type: "simple-marker",
+                        color: "green",
+                        size: "20px",
+                        outline: {
+                            color: "white",
+                            width: 1
+                        }
+                    },
+                    geometry: {
+                        type: "point",
+                        longitude: planLng,
+                        latitude: planLat
+                    }
+                })
+                if (i > 0) {
+                    getRoute();
+                }
+            }
+
+
+            // ルートを取得する関数
+            function getRoute() {
+                // Setup the route parameters
+                var routeParams = new RouteParameters({
+                    stops: new FeatureSet({
+                        features: view.graphics.toArray()
+                    }),
+                    returnDirections: true,
+                    travelMode: travelModeObject
+                });
+                // Get the route
+                routeTask.solve(routeParams).then(function(data) {
+                    data.routeResults.forEach(function(result) {
+                        result.route.symbol = {
+                            type: "simple-line",
+                            color: [5, 150, 255],
+                            width: 3
+                        };
+                        view.graphics.add(result.route);
+                        console.log(result.route);
+                    });
+
+                });
+            }
+
+            //-------------------------
+            // 全スポットをマップに表示
+            //-------------------------
+            addAllSpotGraphic();
+
+            function addAllSpotGraphic() {
+                for (let i = spotArray.length - 1; i > 0; i--) {
+                    spotNum = parseInt(spotArray[i]['No']); //スポット番号
+                    spotName = spotArray[i]['name']; //スポットの名称
+                    spotLat = parseFloat(spotArray[i]['spot_lat']); //スポットの経度
+                    spotLng = parseFloat(spotArray[i]['spot_lng']); //スポットの緯度
+                    spotCategory = spotArray[i]['category']; //スポットのカテゴリ
+                    spotVisible = spotArray[i]['visible']; //スポットの表示
+
+                    console.log(spotVisible);
+                    if (spotVisible == "FALSE") {
+                        continue;
+                    }
+                    // 座標
+                    var mapPoint = {
+                        type: "point",
+                        longitude: spotLng,
+                        latitude: spotLat
+                    };
+
+                    // ポップアップ
+                    var mapPopUp = {
+                        title: spotName + '<span class="spot_title_category">（' + spotCategory + '）</span>',
+                        content: '<span id="pics"></span>' +
+                            '<form  action="making_post.php" method="post" enctype="multipart/form-data">' +
+                            '<label for="spot_image">画像: </label>' +
+                            '<input type="file" id="spot_image" name="spot_image" accept="image/*" onchange="var fileReader=new FileReader();var file=event.target.files[0];fileReader.onload=function(){image=this.result;imagetag="<img src=" + image + " />";document.getElementById("pics").innerHTML=imagetag;};fileReader.readAsDataURL(file);"><br>' +
+                            '<div class="area">' +
+                            '<textarea type="text" class="textarea" id="spot_memo" name="spot_memo" placeholder="紹介文" autocomplete="off">' +
+                            '</textarea></div><br>' +
+                            '所要時間：<input type="number" class="times" name="hours">時間<input type="number" class="times" name="minutes">分' +
+                            '<button name="spot" value="' + spotNum + '">このスポットを追加</button></form>'
+                    };
+
+                    // graphicを追加（カテゴリーごとに色が違う）
+                    if (spotCategory === "名所・史跡") {
+                        addGraphic("type1", mapPoint, mapPopUp);
+                    } else if (spotCategory === "公園・植物園") {
+                        addGraphic("type2", mapPoint, mapPopUp);
+                    } else if (spotCategory === "公共施設") {
+                        addGraphic("type3", mapPoint, mapPopUp);
+                    } else if (spotCategory === "飲食店") {
+                        addGraphic("type4", mapPoint, mapPopUp);
+                    } else if (spotCategory === "寺・神社") {
+                        addGraphic("type5", mapPoint, mapPopUp);
+                    } else if (spotCategory === "美術館・博物館") {
+                        addGraphic("type6", mapPoint, mapPopUp);
+                    } else if (spotCategory === "温泉") {
+                        addGraphic("type7", mapPoint, mapPopUp);
+                    } else if (spotCategory === "花見") {
+                        addGraphic("type8", mapPoint, mapPopUp);
+                    } else if (spotCategory === "祭り・イベント") {
+                        addGraphic("type9", mapPoint, mapPopUp);
+                    } else if (spotCategory === "テーマパーク") {
+                        addGraphic("type10", mapPoint, mapPopUp);
+                    } else {
+                        addGraphic("type0", mapPoint, mapPopUp);
+                    }
+                }
+            }
+
+            //--------------------------
+            // プランにあるスポットを表示
+            //--------------------------
+            addPlanSpotGraphic();
+
+            function addPlanSpotGraphic() {
+                for (let i = 0; i < planArray.length; i++) {
+                    planName = planArray[i]['spot_name']; //スポットの名称
+                    planLng = parseFloat(planArray[i]['spot_lng']); //スポットの緯度
+                    planLat = parseFloat(planArray[i]['spot_lat']); //スポットの経度
+                    planCategory = planArray[i]['category']; //スポットのカテゴリー
+                    planMemo = planArray[i]['memo']; //スポットの紹介文
+                    planImg = planArray[i]['spot_image']; //スポットの画像
+                    planHours = planArray[i]['hours']; //スポットの時間
+                    planMinutes = planArray[i]['minutes']; //スポットの分
+
+                    // 座標
+                    var mapPoint = {
+                        type: "point",
+                        longitude: planLng,
+                        latitude: planLat
+                    };
+
+                    // ポップアップ
+                    var mapPopUp = {
+                        title: planName + "<span class=\"spot_title_category\">（" + planCategory + "）</span>",
+                        content: ""
+                    };
+                    if (planImg != null) {
+                        mapPopUp.content = mapPopUp.content + "<img id=\"spot_image\" src=\"" + planImg +
+                            "\"><br><br>";
+                        console.log("planImg:" + planImg);
+                    }
+                    if (planMemo != "") {
+                        mapPopUp.content = mapPopUp.content + "<p>" + planMemo + "</p>";
+                        console.log("planMemo:" + planMemo);
+                    }
+                    if (planHours != "" || planMinutes != "") {
+                        mapPopUp.content = mapPopUp.content + "<p>所要時間：";
+                        if (planHours != "") {
+                            mapPopUp.content = mapPopUp.content + planHours + "時間";
+                            console.log("planHours:" + planHours);
+                        }
+                        if (planMinutes != "") {
+                            mapPopUp.content = mapPopUp.content + planMinutes + "分";
+                            console.log("planMinutes:" + planMinutes);
+                        }
+                        mapPopUp.content = mapPopUp.content + "</p>";
+                    }
+
+                    // graphicを追加（最初のスポットだけ色が違う）
+                    if (i == 0) {
+                        addGraphic("start", mapPoint, mapPopUp);
+                    } else {
+                        addGraphic("next", mapPoint, mapPopUp);
+                    }
+
+                }
+            }
+
+            function addGraphic(type, point, popUp) {
+                var graphic = new Graphic({
+                    symbol: {
+                        type: "simple-marker",
+                        color: (type === "type1") ? "#EDED9D" : (type === "type2") ? "#93ED9E" : (type ===
+                                "type3") ? "#B2C7ED" : (type === "type4") ? "#EDD29D" : (type === "type5") ?
+                            "#EDB5A8" : (type === "type6") ? "#CAABED" : (type === "type7") ? "#9DEDD8" : (
+                                type === "type8") ? "#F0D3DE" : (type === "type9") ? "#D9F5FD" : (type ===
+                                "type10") ? "#A3F7CC" : (type === "type0") ? "#cccccc" : (type ===
+                                "start") ? "white" : "red",
+                        size: "20px",
+                        outline: {
+                            color: (type === "start") ? "red" : "white",
+                            width: 1
+                        }
+                    },
+                    geometry: point,
+                    popupTemplate: popUp
+                });
+                view.graphics.add(graphic);
+            }
+
+        });
     </script>
+    {{-- -----------------------------------------------------
+    ● ArcGIS for JavaScript に関する処理
+    ----------------------------------------------------- --}}
+    <script language="javascript" type="text/javascript">
+        function loadLayers(layers) {
+            const ddLayerList = document.getElementById("ddLayerList");
+            layers.forEach(l => {
+                let o = document.createElement("option");
+                o.textContent = l.title;
+                o.layer = l;
+                ddLayerList.appendChild(o)
+            });
+        }
 
-    <!-- JavaScriptの記述を行う -->
+        require([
+            "esri/WebMap",
+            "esri/views/MapView",
+            "esri/WebScene",
+            "esri/views/SceneView",
+            "esri/widgets/LayerList",
+            "esri/widgets/Search",
+            "esri/widgets/ScaleBar",
+            "esri/Graphic",
+            "esri/tasks/RouteTask",
+            "esri/tasks/support/RouteParameters",
+            "esri/tasks/support/FeatureSet"
+        ], function(WebMap, MapView, WebScene, SceneView, Search, LayerList) {
+            const map = new WebMap({
+                "portalItem": {
+                    "id": "93fde900d72a4d98aeb21826749bdfb2"
+                }
+            });
+            const mapView = new MapView({
+                "container": "divMapView",
+                "map": map
+            });
+            const scene = new WebScene({
+                "portalItem": {
+                    "id": "ab5f4026c0ae4fc5852a0d0d73982ff8"
+                }
+            });
+            const sceneView = new SceneView({
+                "container": "SceneOsaka",
+                "map": scene
+            });
+            // Layer Widget
+            var layerList = new LayerList({
+                view: view,
+            })
+            // Search
+            // const searchWidget = new Search({
+            //     "view": mapView
+            // });
+            // view.ui.add(searchWidget, {
+            //     position: "top-left",
+            //     index: 2
+            // });
+            map.when(() => loadLayers(scene.layers))
+        });
+    </script>
     @yield('script')
-
 </head>
 
 <body id="page-top">
@@ -84,7 +453,7 @@
     <div id="wrapper">
 
         <!-- Sidebar -->
-        <ul class="d-none navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+        {{-- <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
             <!-- Sidebar - Brand -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="top">
@@ -131,13 +500,18 @@
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
 
+            <!-- Sidebar Toggler (Sidebar) -->
+            <div class="text-center d-none d-md-inline">
+                <button class="rounded-circle border-0" id="sidebarToggle"></button>
+            </div>
+
             <!-- Sidebar Message -->
             <div class="sidebar-card d-none d-lg-flex">
                 <p class="text-center mb-2"><strong>アンケート</strong>にご協力お願いします！</p>
                 <a class="btn btn-success btn-sm" href="http://www.si.is.uec.ac.jp/yamamotohp/">アンケート</a>
             </div>
 
-        </ul>
+        </ul> --}}
         <!-- End of Sidebar -->
 
 
@@ -149,7 +523,7 @@
             <div id="content">
 
                 <!-- Topbar -->
-                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-md-4 static-top shadow">
 
                     <!-- Sidebar Toggle (Topbar) -->
                     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
@@ -288,71 +662,6 @@
                             </div>
                         </li>
 
-                        <!-- Nav Item - Messages -->
-                        <li class="nav-item dropdown no-arrow mx-1">
-                            <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-envelope fa-fw"></i>
-                                <!-- Counter - Messages -->
-                                <span class="badge badge-danger badge-counter">7</span>
-                            </a>
-                            <!-- Dropdown - Messages -->
-                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                                aria-labelledby="messagesDropdown">
-                                <h6 class="dropdown-header">
-                                    Message Center
-                                </h6>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="img/undraw_profile_1.svg" alt="...">
-                                        <div class="status-indicator bg-success"></div>
-                                    </div>
-                                    <div class="font-weight-bold">
-                                        <div class="text-truncate">Hi there! I am wondering if you can help me with a
-                                            problem I've been having.</div>
-                                        <div class="small text-gray-500">Emily Fowler · 58m</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="img/undraw_profile_2.svg" alt="...">
-                                        <div class="status-indicator"></div>
-                                    </div>
-                                    <div>
-                                        <div class="text-truncate">I have the photos that you ordered last month, how
-                                            would you like them sent to you?</div>
-                                        <div class="small text-gray-500">Jae Chun · 1d</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="img/undraw_profile_3.svg" alt="...">
-                                        <div class="status-indicator bg-warning"></div>
-                                    </div>
-                                    <div>
-                                        <div class="text-truncate">Last month's report looks great, I am very happy
-                                            with
-                                            the progress so far, keep up the good work!</div>
-                                        <div class="small text-gray-500">Morgan Alvarez · 2d</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle"
-                                            src="https://source.unsplash.com/Mv9hjnEUHR4/60x60" alt="...">
-                                        <div class="status-indicator bg-success"></div>
-                                    </div>
-                                    <div>
-                                        <div class="text-truncate">Am I a good boy? The reason I ask is because someone
-                                            told me that people say this to all dogs, even if they aren't good...</div>
-                                        <div class="small text-gray-500">Chicken the Dog · 2w</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item text-center small text-gray-500" href="#">Read More
-                                    Messages</a>
-                            </div>
-                        </li>
-
                         <div class="topbar-divider d-none d-sm-block"></div>
 
                         <!-- Nav Item - User Information -->
@@ -392,7 +701,7 @@
                 <!-- End of Topbar -->
 
                 <!-- Begin Page Content -->
-                <div class="container-fluid">
+                <div class="container-fluid px-0 px-lg-4">
                     @yield('content')
                 </div>
                 <!-- /.container-fluid -->
