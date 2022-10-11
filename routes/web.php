@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('site.top');
 });
 
 Route::get('/dashboard', function () {
@@ -87,4 +87,3 @@ Route::get('/sharing-log', function () {
     $data["test"] = 'testyade';
     return view('site.sharing-log', $data);
 });
-

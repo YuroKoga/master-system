@@ -123,8 +123,7 @@
                 <!-- Card Body -->
                 <div class="card-body">
                     <div class="overflow-auto">
-                        <!-- 繰り返し -->
-                        <?php for($i=1;$i<=10;$i++){ ?>
+
                         <!-- One Spot -->
                         <div class="mb-2">
                             <div class="card border-left-info h-100 py-2">
@@ -133,16 +132,104 @@
                                         <div class="col mr-2">
                                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
                                                 カテゴリ</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">ダミー</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">通天閣</div>
                                         </div>
                                         <!-- Icon -->
                                         <div class="col-auto">
-                                            <i class="fas fa-shop fa-2x text-gray-300"></i>
+                                            <i class="fas fa-vihara fa-2x text-gray-300"></i>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        <!-- One Spot -->
+                        <div class="mb-2">
+                            <div class="card border-left-info h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                                カテゴリ</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">新世界</div>
+                                        </div>
+                                        <!-- Icon -->
+                                        <div class="col-auto">
+                                            <i class="fas fa-utensils fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <div class="card border-left-info h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                                カテゴリ</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">大阪城</div>
+                                        </div>
+                                        <!-- Icon -->
+                                        <div class="col-auto">
+                                            <i class="fas fa-vihara fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <div class="card border-left-info h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                                カテゴリ</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">大阪天満宮</div>
+                                        </div>
+                                        <!-- Icon -->
+                                        <div class="col-auto">
+                                            <i class="fas fa-vihara fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <div class="card border-left-info h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                                カテゴリ</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">天神橋筋商店街</div>
+                                        </div>
+                                        <!-- Icon -->
+                                        <div class="col-auto">
+                                            <i class="fas fa-utensils fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <div class="card border-left-info h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                                カテゴリ</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">裏天満</div>
+                                        </div>
+                                        <!-- Icon -->
+                                        <div class="col-auto">
+                                            <i class="fas fa-utensils fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 繰り返し -->
+                        <?php for($i=1;$i<=10;$i++){ ?>
                         <?php } ?>
                         <div class="mt-4 text-center small">
                             <span class="mr-2">
