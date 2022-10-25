@@ -1,17 +1,14 @@
 @extends('layouts.new-master')
 @section('page_title')
-    観光計画の作成
+    旅程管理
 @endsection
 @section('script')
 @endsection
 
 @section('content')
-
     <!-- Page Heading -->
     <div class="d-none d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">観光計画の作成</h1>
-        <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
-                class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
+        <h1 class="h3 mb-0 text-gray-800">旅程管理</h1>
     </div>
 
     <!-- Content Row -->
@@ -19,7 +16,7 @@
 
         <!-- GISを表示するカード -->
         <div class="col-xl-9 col-lg-8">
-            <div class="card shadow mb-md-4">
+            <div class="card shadow mb-md-4" style="height: 70vh;">
                 <!-- Card Header - Dropdown -->
                 <div class="card-header d-flex flex-row align-items-center justify-content-between">
                     <!-- タブ -->
@@ -55,15 +52,15 @@
                 <!-- Card Body -->
                 <div class="card-body p-0">
                     <!-- タブの内容 -->
-                    <div class="tab-content" id="pills-mapTabContent">
+                    <div class="tab-content" id="pills-mapTabContent" style="height: 100%;">
                         <div class="tab-pane fade show active" id="pills-2Dmap" role="tabpanel"
-                            aria-labelledby="pills-2Dmap-tab">
+                            aria-labelledby="pills-2Dmap-tab" style="height: 100%;">
                             <!-- 2Dマップ を表示する要素 -->
-                            <div id="divMapView" style="height: 30rem;"></div>
+                            <div id="divMapView" style="height: 100%;"></div>
                         </div>
                         <div class="tab-pane fade" id="pills-3Dmap" role="tabpanel" aria-labelledby="pills-3Dmap-tab">
                             <!-- 3Dマップ を表示する要素 -->
-                            <div id='SceneOsaka' style="height: 30rem;"></div>
+                            <div id='SceneOsaka' style="height: 60vh;"></div>
                         </div>
                     </div>
                 </div>
@@ -72,7 +69,7 @@
 
         <!-- Timeline -->
         <div class="col-xl-3 col-lg-4">
-            <div class="card shadow mb-4">
+            <div class="card shadow mb-4" style="height:70vh;">
                 <!-- Card Header - Dropdown -->
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-primary">Timeline</h6>
@@ -93,37 +90,122 @@
                 </div>
                 <!-- Card Body -->
                 <div class="card-body">
-                    <!-- 繰り返し -->
-                    <?php for($i=1;$i<=3;$i++){ ?>
-                    <!-- One Spot -->
-                    <div class="mb-2">
-                        <div class="card border-left-info h-100 py-2">
-                            <div class="card-body">
-                                <div class="row no-gutters align-items-center">
-                                    <div class="col mr-2">
-                                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                            カテゴリ</div>
-                                        <div class="h5 mb-0 font-weight-bold text-gray-800">ダミー</div>
-                                    </div>
-                                    <!-- Icon -->
-                                    <div class="col-auto">
-                                        <i class="fas fa-shop fa-2x text-gray-300"></i>
+                    <div class="overflow-auto" style="height:100%;">
+                        <!-- One Spot -->
+                        <div class="mb-2">
+                            <div class="card border-left-info h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                                カテゴリ</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">通天閣</div>
+                                        </div>
+                                        <!-- Icon -->
+                                        <div class="col-auto">
+                                            <i class="fas fa-vihara fa-2x text-gray-300"></i>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <?php } ?>
-                    <div class="mt-4 text-center small">
-                        <span class="mr-2">
-                            <i class="fas fa-circle text-primary"></i> Direct
-                        </span>
-                        <span class="mr-2">
-                            <i class="fas fa-circle text-success"></i> Social
-                        </span>
-                        <span class="mr-2">
-                            <i class="fas fa-circle text-info"></i> Referral
-                        </span>
+                        <!-- One Spot -->
+                        <div class="mb-2">
+                            <div class="card border-left-info h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                                カテゴリ</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">新世界</div>
+                                        </div>
+                                        <!-- Icon -->
+                                        <div class="col-auto">
+                                            <i class="fas fa-utensils fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <div class="card border-left-info h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                                カテゴリ</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">大阪城</div>
+                                        </div>
+                                        <!-- Icon -->
+                                        <div class="col-auto">
+                                            <i class="fas fa-vihara fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <div class="card border-left-info h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                                カテゴリ</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">大阪天満宮</div>
+                                        </div>
+                                        <!-- Icon -->
+                                        <div class="col-auto">
+                                            <i class="fas fa-vihara fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <div class="card border-left-info h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                                カテゴリ</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">天神橋筋商店街</div>
+                                        </div>
+                                        <!-- Icon -->
+                                        <div class="col-auto">
+                                            <i class="fas fa-utensils fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <div class="card border-left-info h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                                カテゴリ</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">裏天満</div>
+                                        </div>
+                                        <!-- Icon -->
+                                        <div class="col-auto">
+                                            <i class="fas fa-utensils fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-center small">
+                            <span class="mr-2">
+                                <i class="fas fa-circle text-primary"></i> Direct
+                            </span>
+                            <span class="mr-2">
+                                <i class="fas fa-circle text-success"></i> Social
+                            </span>
+                            <span class="mr-2">
+                                <i class="fas fa-circle text-info"></i> Referral
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -166,13 +248,13 @@
                             <div class="row no-gutters align-items-center border-bottom">
                                 <div class="col">
                                     <div class="text-s text-info text-uppercase">
-                                        カテゴリ</div>
-                                    <div class="h5 font-weight-bold text-primary">観光スポット<?php echo $s++; ?></div>
+                                        名所・史跡</div>
+                                    <div class="h5 font-weight-bold text-primary">通天閣</div>
                                 </div>
                             </div>
                             <div class="row m-2">
                                 <div class="col-auto">
-                                    <img class="img-fluid rounded mb-4" style="width: 25rem;" src="img/dog.jpg"
+                                    <img class="img-fluid rounded mb-4" style="width: 25rem;" src="img/tutenkaku.jpg"
                                         alt="...">
                                 </div>
                                 <div class="col">

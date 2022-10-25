@@ -18,7 +18,7 @@
 
         <!-- GISを表示するカード -->
         <div class="col-xl-9 col-lg-8 mh-100">
-            <div class="card shadow mb-0">
+            <div class="card shadow mb-0" style="height: calc(100vh - 250px);">
                 <!-- Card Header - Dropdown -->
                 <div class="card-header d-flex flex-row align-items-center justify-content-between">
                     <!-- タブ -->
@@ -54,15 +54,17 @@
                 <!-- Card Body -->
                 <div class="card-body p-0">
                     <!-- タブの内容 -->
-                    <div class="tab-content" id="pills-mapTabContent">
+                    <div class="tab-content" id="pills-mapTabContent" style="height: 100%;">
+                        <!-- 2Dマップタブ -->
                         <div class="tab-pane fade show active" id="pills-2Dmap" role="tabpanel"
-                            aria-labelledby="pills-2Dmap-tab">
+                            aria-labelledby="pills-2Dmap-tab" style="height: 100%;">
                             <!-- 2Dマップ を表示する要素 -->
-                            <div id="divMapView" style="height: calc(100vh - 300px);"></div>
+                            <div id="divMapView" style="height: 100%;"></div>
                         </div>
+                        <!-- 3Dマップタブ -->
                         <div class="tab-pane fade" id="pills-3Dmap" role="tabpanel" aria-labelledby="pills-3Dmap-tab">
                             <!-- 3Dマップ を表示する要素 -->
-                            <div id='SceneOsaka' style="height: calc(100vh - 400px);"></div>
+                            <div id='SceneOsaka' style="height: calc(100vh - 417px);"></div>
                             <!-- Play Button -->
                             <div class="card bg-Secondary shadow h-50 py-0">
                                 <div class="card-body">
@@ -101,7 +103,7 @@
 
         <!-- Plan Timeline-->
         <div class="col-xl-3 col-lg-4">
-            <div class="card shadow mb-4">
+            <div class="card shadow mb-4" style="height: calc(100vh - 250px);">
                 <!-- Card Header - Dropdown -->
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-primary">Timeline</h6>
@@ -122,7 +124,7 @@
                 </div>
                 <!-- Card Body -->
                 <div class="card-body">
-                    <div class="overflow-auto">
+                    <div class="overflow-auto" style="height:100%;">
 
                         <!-- One Spot -->
                         <div class="mb-2">

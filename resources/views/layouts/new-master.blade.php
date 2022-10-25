@@ -1,81 +1,83 @@
+{{-- ===============================================================
+■：レイアウト new-master.blade.php
+=============================================================== --}}
+
+<?php
+
+//htmlspecialcharsを省略する関数
+function h($s)
+{
+    return htmlspecialchars($s, ENT_QUOTES, 'utf-8');
+}
+
+session_start(); //セッションスタート
+
+//-----------------------------------------------------
+//  〇：初めてこの画面に来たとき
+//-----------------------------------------------------
+
+// セッション配列に情報を格納
+if (!isset($_SESSION['spot_plan'])) {
+    //  観光プランを格納するセッション配列を生成
+    $_SESSION['spot_plan'] = [];
+    $_SESSION['order'] = 0;
+
+    //  スポットの情報をセッション配列に格納
+    $f = fopen('csv/spotlist_osaka.csv', 'r');
+    $i = 0;
+    while ($row = fgetcsv($f)) {
+        $_SESSION['spot_array'][$i]['No'] = $row[0]; // No(スポット番号)を格納
+        $_SESSION['spot_array'][$i]['name'] = $row[1]; // name(スポットの名称)を格納
+        $_SESSION['spot_array'][$i]['spot_lat'] = $row[2]; // spot_lat(経度)を格納
+        $_SESSION['spot_array'][$i]['spot_lng'] = $row[3]; // spot_lng(緯度)を格納
+        // $_SESSION['spot_array'][$i]['category'] = $row[4]; // category(カテゴリー)を格納
+        // $_SESSION['spot_array'][$i]['visible'] = $row[6]; // 表示するかどうかの値を格納
+        $i++;
+    }
+    fclose($f);
+}
+
+//-----------------------------------------------------
+//  〇：マップ表示
+//  スポット情報をCSVファイルから取得し、JavaScriptへ渡す
+//-----------------------------------------------------
+
+$f = fopen('csv/spotlist_osaka.csv', 'r');
+$i = 0;
+while ($row = fgetcsv($f)) {
+    $spot_array[$i]['No'] = $row[0]; //Noを取得
+    $spot_array[$i]['name'] = $row[1]; //nameを取得
+    $spot_array[$i]['spot_lat'] = $row[2]; //spot_lat(経度)を取得
+    $spot_array[$i]['spot_lng'] = $row[3]; //spot_lng(緯度)を取得
+    // $spot_array[$i]['category'] = $row[4]; //categoryを取得
+    // $spot_array[$i]['visible'] = $row[6]; // 表示するかどうかの値を取得
+    ++$i;
+}
+fclose($f);
+
+//-----------------------------------------------------
+//  JavaScriptにjson形式で渡す
+//-----------------------------------------------------
+$spot_array = json_encode($spot_array); // スポット情報
+$plan_array = json_encode($_SESSION['spot_plan']); //プランの情報
+?>
+
 <!DOCTYPE html>
 <html lang="ja">
 
 <head>
+    {{-- ページタイトルをそれぞれのページに要求 --}}
     @component('components.header')
         @slot('page_title')
             @yield('page_title')
         @endslot
     @endcomponent
-    <?php
-    //===============================================================
-    //  ■：観光プラン作成画面 making.php
-    //===============================================================
 
-    //htmlspecialcharsを省略する関数
-    function h($s)
-    {
-        return htmlspecialchars($s, ENT_QUOTES, 'utf-8');
-    }
-
-    session_start(); //セッションスタート
-
-    //-----------------------------------------------------
-    //  〇：初めてこの画面に来たとき
-    //-----------------------------------------------------
-    //ログインしていない場合
-    // if (!isset($_SESSION['usr_id'])) {
-    //     header('location: login_page.php');
-    // }
-
-    // セッション配列に情報を格納
-    if (!isset($_SESSION['spot_plan'])) {
-        //  観光プランを格納するセッション配列を生成
-        $_SESSION['spot_plan'] = [];
-        $_SESSION['order'] = 0;
-
-        //  スポットの情報をセッション配列に格納
-        $f = fopen('csv/spotlist_osaka.csv', 'r');
-        $i = 0;
-        while ($row = fgetcsv($f)) {
-            $_SESSION['spot_array'][$i]['No'] = $row[0]; // No(スポット番号)を格納
-            $_SESSION['spot_array'][$i]['name'] = $row[1]; // name(スポットの名称)を格納
-            $_SESSION['spot_array'][$i]['spot_lat'] = $row[2]; // spot_lat(経度)を格納
-            $_SESSION['spot_array'][$i]['spot_lng'] = $row[3]; // spot_lng(緯度)を格納
-            // $_SESSION['spot_array'][$i]['category'] = $row[4]; // category(カテゴリー)を格納
-            // $_SESSION['spot_array'][$i]['visible'] = $row[6]; // 表示するかどうかの値を格納
-            $i++;
-        }
-        fclose($f);
-    }
-
-    //-----------------------------------------------------
-    //  〇：マップ表示
-    //  スポット情報をCSVファイルから取得し、JavaScriptへ渡す
-    //-----------------------------------------------------
-
-    $f = fopen('csv/spotlist_osaka.csv', 'r');
-    $i = 0;
-    while ($row = fgetcsv($f)) {
-        $spot_array[$i]['No'] = $row[0]; //Noを取得
-        $spot_array[$i]['name'] = $row[1]; //nameを取得
-        $spot_array[$i]['spot_lat'] = $row[2]; //spot_lat(経度)を取得
-        $spot_array[$i]['spot_lng'] = $row[3]; //spot_lng(緯度)を取得
-        // $spot_array[$i]['category'] = $row[4]; //categoryを取得
-        // $spot_array[$i]['visible'] = $row[6]; // 表示するかどうかの値を取得
-        ++$i;
-    }
-    fclose($f);
-
-    //-----------------------------------------------------
-    //  JavaScriptにjson形式で渡す
-    //-----------------------------------------------------
-    $spot_array = json_encode($spot_array); // スポット情報
-    $plan_array = json_encode($_SESSION['spot_plan']); //プランの情報
-    ?>
-    {{-- //-----------------------------------------------------
+    {{-- 追加CSSがあれば取得 --}}
+    @yield('additional_css')
+    {{-- -----------------------------------------------------
     // マップについての処理
-    //----------------------------------------------------- --> --}}
+    ----------------------------------------------------- --}}
     <script>
         //-----------------------------------------------------
         // CSVファイルの読み込み
@@ -104,6 +106,7 @@
             "esri/views/MapView",
             "esri/widgets/Search",
             "esri/widgets/ScaleBar",
+            "esri/widgets/LayerList",
             "esri/Graphic",
             "esri/tasks/RouteTask",
             "esri/tasks/support/RouteParameters",
@@ -113,6 +116,7 @@
             MapView,
             Search,
             ScaleBar,
+            LayerList,
             Graphic,
             RouteTask,
             RouteParameters,
@@ -384,9 +388,9 @@
 
         });
     </script>
-    {{-- -----------------------------------------------------
-    ● ArcGIS for JavaScript に関する処理
-    ----------------------------------------------------- --}}
+    // {{-- -----------------------------------------------------
+    // ● ArcGIS for JavaScript に関する処理
+    // ----------------------------------------------------- --}}
     <script language="javascript" type="text/javascript">
         function loadLayers(layers) {
             const ddLayerList = document.getElementById("ddLayerList");
@@ -422,7 +426,7 @@
             });
             const scene = new WebScene({
                 "portalItem": {
-                    "id": "ab5f4026c0ae4fc5852a0d0d73982ff8"
+                    "id": "58d1da6134a447f29029d5f9fc6a54c2"
                 }
             });
             const sceneView = new SceneView({
@@ -591,21 +595,21 @@
                         <li class="nav-item">
                             <a class="nav-link collapsed" href="making-plan">
                                 <i class="fas fa-fw fa-pen-to-square"></i>
-                                <span class="mr-2 d-none d-xl-inline text-gray-600 small">観光計画の作成</span>
+                                <span class="ml-1 mr-2 d-none d-xl-inline text-gray-600 small">旅程管理</span>
                             </a>
                         </li>
 
                         <li class="nav-item">
                             <a class="nav-link collapsed" href="making-log">
                                 <i class="fas fa-fw fa-map-location-dot"></i>
-                                <span class="mr-2 d-none d-xl-inline text-gray-600 small">観光記録の作成</span>
+                                <span class="ml-1 mr-2 d-none d-xl-inline text-gray-600 small"> 観光記録の作成</span>
                             </a>
                         </li>
 
                         <li class="nav-item">
                             <a class="nav-link collapsed" href="sharing-log">
                                 <i class="fas fa-fw fa-handshake"></i>
-                                <span class="mr-2 d-none d-xl-inline text-gray-600 small">観光記録の共有</span>
+                                <span class="ml-1 mr-2 d-none d-xl-inline text-gray-600 small"> 観光記録の共有</span>
                             </a>
                         </li>
 
@@ -665,36 +669,61 @@
                         <div class="topbar-divider d-none d-sm-block"></div>
 
                         <!-- Nav Item - User Information -->
-                        <li class="nav-item dropdown no-arrow">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">Administrator</span>
-                                <img class="img-profile rounded-circle" src="img/undraw_profile.svg">
-                            </a>
-                            <!-- Dropdown - User Information -->
-                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                                aria-labelledby="userDropdown">
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Profile
-                                </a>
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Settings
-                                </a>
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Activity Log
-                                </a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" data-toggle="modal"
-                                    data-target="#logoutModal">
-                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Logout
-                                </a>
-                            </div>
-                        </li>
-
+                        @if (Route::has('login'))
+                            <li class="nav-item dropdown no-arrow">
+                                @auth
+                                    <?php $user = Auth::user(); ?>
+                                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <span
+                                            class="mr-2 d-none d-lg-inline text-gray-600 small">{{ $user->name }}</span>
+                                        <img class="img-profile rounded-circle" src="img/undraw_profile.svg">
+                                    </a>
+                                    <!-- Dropdown - User Information -->
+                                    <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                        aria-labelledby="userDropdown">
+                                        <a class="dropdown-item" href="#">
+                                            <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                                            プロフィール
+                                        </a>
+                                        <a class="dropdown-item" href="#">
+                                            <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
+                                            設定
+                                        </a>
+                                        <a class="dropdown-item" href="#">
+                                            <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
+                                            作成履歴
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="#" data-toggle="modal"
+                                            data-target="#logoutModal">
+                                            <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                            ログアウト
+                                        </a>
+                                    </div>
+                                @else
+                                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <span class="mr-2 d-none d-lg-inline text-gray-600 small">未ログイン</span>
+                                        <img class="img-profile rounded-circle" src="img/undraw_profile.svg">
+                                    </a>
+                                    <!-- ドロップダウン -->
+                                    <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                        aria-labelledby="userDropdown">
+                                        <a class="dropdown-item" href="{{ route('login') }}">
+                                            <i class="fas fa-sign-in-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                            ログイン
+                                        </a>
+                                        @if (Route::has('register'))
+                                            <a class="dropdown-item" href="{{ route('register') }}">
+                                                <i class="fas fa-user-plus fa-sm fa-fw mr-2 text-gray-400"></i>
+                                                新規利用登録
+                                            </a>
+                                        @endif
+                                    </div>
+                                @endauth
+                            </li>
+                        @endif
                     </ul>
 
                 </nav>
@@ -736,15 +765,15 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">ログアウトしますか？</h5>
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
                 </div>
-                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+                <div class="modal-body">"ログアウト" を選択するとセッションを終了します.</div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                    <a class="btn btn-primary" href="login.html">Logout</a>
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">キャンセル</button>
+                    <a class="btn btn-primary" href="{{ route('logout') }}">ログアウト</a>
                 </div>
             </div>
         </div>

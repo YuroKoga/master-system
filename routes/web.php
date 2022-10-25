@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('site.top');
-});
+})->name('/');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -26,15 +26,7 @@ require __DIR__ . '/auth.php';
 Route::get('/top', function () {
     return view('site.top');
 });
-Route::get('/login', function () {
-    return view('site.login');
-});
-Route::get('/register', function () {
-    return view('site.register');
-});
-Route::get('/forgot-password', function () {
-    return view('site.forgot-password');
-});
+
 Route::get('/404', function () {
     return view('site.404');
 });
@@ -43,17 +35,20 @@ Route::get('/404', function () {
 Route::get('/virtual-walking', function () {
     return view('site.virtual-walking');
 });
+
 Route::get('/virtual-walking-expansion', function () {
     return view('site.virtual-walking-expansion');
 });
+
 Route::get('/making-plan', function () {
     return view('site.making-plan');
 });
+
 Route::get('/making-log', function () {
     return view('site.making-log');
 });
+
 Route::get('/sharing-log', function () {
-    session_start(); //セッションスタート
     $allPlan = [];
     $f = fopen('csv/plan/planList.csv', 'r');
     $i = 0;
@@ -87,3 +82,9 @@ Route::get('/sharing-log', function () {
     $data["test"] = 'testyade';
     return view('site.sharing-log', $data);
 });
+
+Route::get('/database', [App\Http\Controllers\DatabaseController::class, 'getUserList']);
+
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
