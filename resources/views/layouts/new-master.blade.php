@@ -2,66 +2,6 @@
 ■：レイアウト new-master.blade.php
 =============================================================== --}}
 
-<?php
-
-//htmlspecialcharsを省略する関数
-function h($s)
-{
-    return htmlspecialchars($s, ENT_QUOTES, 'utf-8');
-}
-
-session_start(); //セッションスタート
-
-//-----------------------------------------------------
-//  〇：初めてこの画面に来たとき
-//-----------------------------------------------------
-
-// セッション配列に情報を格納
-if (!isset($_SESSION['spot_plan'])) {
-    //  観光プランを格納するセッション配列を生成
-    $_SESSION['spot_plan'] = [];
-    $_SESSION['order'] = 0;
-
-    //  スポットの情報をセッション配列に格納
-    $f = fopen('csv/spotlist_osaka.csv', 'r');
-    $i = 0;
-    while ($row = fgetcsv($f)) {
-        $_SESSION['spot_array'][$i]['No'] = $row[0]; // No(スポット番号)を格納
-        $_SESSION['spot_array'][$i]['name'] = $row[1]; // name(スポットの名称)を格納
-        $_SESSION['spot_array'][$i]['spot_lat'] = $row[2]; // spot_lat(経度)を格納
-        $_SESSION['spot_array'][$i]['spot_lng'] = $row[3]; // spot_lng(緯度)を格納
-        // $_SESSION['spot_array'][$i]['category'] = $row[4]; // category(カテゴリー)を格納
-        // $_SESSION['spot_array'][$i]['visible'] = $row[6]; // 表示するかどうかの値を格納
-        $i++;
-    }
-    fclose($f);
-}
-
-//-----------------------------------------------------
-//  〇：マップ表示
-//  スポット情報をCSVファイルから取得し、JavaScriptへ渡す
-//-----------------------------------------------------
-
-$f = fopen('csv/spotlist_osaka.csv', 'r');
-$i = 0;
-while ($row = fgetcsv($f)) {
-    $spot_array[$i]['No'] = $row[0]; //Noを取得
-    $spot_array[$i]['name'] = $row[1]; //nameを取得
-    $spot_array[$i]['spot_lat'] = $row[2]; //spot_lat(経度)を取得
-    $spot_array[$i]['spot_lng'] = $row[3]; //spot_lng(緯度)を取得
-    // $spot_array[$i]['category'] = $row[4]; //categoryを取得
-    // $spot_array[$i]['visible'] = $row[6]; // 表示するかどうかの値を取得
-    ++$i;
-}
-fclose($f);
-
-//-----------------------------------------------------
-//  JavaScriptにjson形式で渡す
-//-----------------------------------------------------
-$spot_array = json_encode($spot_array); // スポット情報
-$plan_array = json_encode($_SESSION['spot_plan']); //プランの情報
-?>
-
 <!DOCTYPE html>
 <html lang="ja">
 
@@ -74,381 +14,11 @@ $plan_array = json_encode($_SESSION['spot_plan']); //プランの情報
     @endcomponent
 
     {{-- 追加CSSがあれば取得 --}}
-    @yield('additional_css')
-    {{-- -----------------------------------------------------
-    // マップについての処理
-    ----------------------------------------------------- --}}
-    <script>
-        //-----------------------------------------------------
-        // CSVファイルの読み込み
-        //-----------------------------------------------------
-        let spotArray = <?php echo $spot_array; ?>;
-        let planArray = <?php echo $plan_array; ?>;
+    @yield('css')
 
-        // 中心座標を最後に選択したスポットにする
-        // (最初は調布駅)
-        var def_zoom = 13;
-        if (!planArray.length && !newSpotArray.length) {
-            var def_lng = 139.5446124;
-            var def_lat = 35.6518205;
-        } else if (!newSpotArray.length) {
-            var def_lng = parseFloat(planArray[planArray.length - 1]['spot_lng']);
-            var def_lat = parseFloat(planArray[planArray.length - 1]['spot_lat']);
-        } else {
-            var def_lng = parseFloat(newSpotArray[0]['lng']);
-            var def_lat = parseFloat(newSpotArray[0]['lat']);
-            var def_zoom = parseInt(newSpotArray[0]['zoom']);
-        }
-
-        require([
-            // モジュールの読み込み
-            "esri/Map",
-            "esri/views/MapView",
-            "esri/widgets/Search",
-            "esri/widgets/ScaleBar",
-            "esri/widgets/LayerList",
-            "esri/Graphic",
-            "esri/tasks/RouteTask",
-            "esri/tasks/support/RouteParameters",
-            "esri/tasks/support/FeatureSet"
-        ], function(
-            Map,
-            MapView,
-            Search,
-            ScaleBar,
-            LayerList,
-            Graphic,
-            RouteTask,
-            RouteParameters,
-            FeatureSet
-        ) {
-            // Map の作成
-            const map = new Map({
-                basemap: "streets-navigation-vector", // "streets-navigation-vector"か"topo"が無難
-            });
-
-            // View の作成
-            var view = new MapView({
-                container: "viewMap", // View を表示する DOM ノードを参照
-                map: map, // map オブジェクトを参照
-                zoom: def_zoom,
-                center: {
-                    longitude: def_lng,
-                    latitude: def_lat
-                }
-            });
-
-            //ZOOMボタンの削除
-            view.ui.empty("top-left");
-
-            //----------
-            //検索の追加
-            //----------
-            var searchWidget = new Search({
-                view: view
-            });
-            view.ui.add(searchWidget, {
-                position: "top-right",
-                index: 2
-            });
-
-            //--------------
-            //スケールの追加
-            //--------------
-            // const scalebar = new ScaleBar({
-            //   view: view,
-            //   unit: "dual"
-            // });
-            // view.ui.add(scalebar, "bottom-left");
-
-            //------------
-            //ルートの追加
-            //------------
-
-            // ArcGISのルート機能を使用するための処理
-            var routeTask = new RouteTask({
-                // url: "https://route.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World"  // ログイン必要
-                url: "https://utility.arcgis.com/usrsvcs/appservices/kY3BNFUNyPBeKKwi/rest/services/World/Route/NAServer/Route_World/solve" //ログイン不要（山本研究室のArcGISのプロキシ）
-            });
-
-            const travelModeObject = {
-                "distanceAttributeName": "Kilometers",
-                "impedanceAttributeName": "Kilometers",
-                "simplificationToleranceUnits": "esriMeters",
-                "uturnAtJunctions": "esriNFSBAllowBacktrack",
-                "useHierarchy": false,
-                "name": "",
-                "simplificationTolerance": 2,
-                "timeAttributeName": "WalkTime",
-                "restrictionAttributeNames": ["Avoid Toll Roads", "Avoid Ferries"],
-                "type": "WALK",
-                "attributeParameterValues": [{}]
-            };
-
-            //-------------------------------
-            // ルートの表示
-            //-------------------------------
-            for (let i = 0; i < planArray.length; i++) {
-                planLng = parseFloat(planArray[i]['spot_lng']); //スポットの緯度
-                planLat = parseFloat(planArray[i]['spot_lat']); //スポットの経度
-                view.graphics.add({
-                    symbol: {
-                        type: "simple-marker",
-                        color: "green",
-                        size: "20px",
-                        outline: {
-                            color: "white",
-                            width: 1
-                        }
-                    },
-                    geometry: {
-                        type: "point",
-                        longitude: planLng,
-                        latitude: planLat
-                    }
-                })
-                if (i > 0) {
-                    getRoute();
-                }
-            }
-
-
-            // ルートを取得する関数
-            function getRoute() {
-                // Setup the route parameters
-                var routeParams = new RouteParameters({
-                    stops: new FeatureSet({
-                        features: view.graphics.toArray()
-                    }),
-                    returnDirections: true,
-                    travelMode: travelModeObject
-                });
-                // Get the route
-                routeTask.solve(routeParams).then(function(data) {
-                    data.routeResults.forEach(function(result) {
-                        result.route.symbol = {
-                            type: "simple-line",
-                            color: [5, 150, 255],
-                            width: 3
-                        };
-                        view.graphics.add(result.route);
-                        console.log(result.route);
-                    });
-
-                });
-            }
-
-            //-------------------------
-            // 全スポットをマップに表示
-            //-------------------------
-            addAllSpotGraphic();
-
-            function addAllSpotGraphic() {
-                for (let i = spotArray.length - 1; i > 0; i--) {
-                    spotNum = parseInt(spotArray[i]['No']); //スポット番号
-                    spotName = spotArray[i]['name']; //スポットの名称
-                    spotLat = parseFloat(spotArray[i]['spot_lat']); //スポットの経度
-                    spotLng = parseFloat(spotArray[i]['spot_lng']); //スポットの緯度
-                    spotCategory = spotArray[i]['category']; //スポットのカテゴリ
-                    spotVisible = spotArray[i]['visible']; //スポットの表示
-
-                    console.log(spotVisible);
-                    if (spotVisible == "FALSE") {
-                        continue;
-                    }
-                    // 座標
-                    var mapPoint = {
-                        type: "point",
-                        longitude: spotLng,
-                        latitude: spotLat
-                    };
-
-                    // ポップアップ
-                    var mapPopUp = {
-                        title: spotName + '<span class="spot_title_category">（' + spotCategory + '）</span>',
-                        content: '<span id="pics"></span>' +
-                            '<form  action="making_post.php" method="post" enctype="multipart/form-data">' +
-                            '<label for="spot_image">画像: </label>' +
-                            '<input type="file" id="spot_image" name="spot_image" accept="image/*" onchange="var fileReader=new FileReader();var file=event.target.files[0];fileReader.onload=function(){image=this.result;imagetag="<img src=" + image + " />";document.getElementById("pics").innerHTML=imagetag;};fileReader.readAsDataURL(file);"><br>' +
-                            '<div class="area">' +
-                            '<textarea type="text" class="textarea" id="spot_memo" name="spot_memo" placeholder="紹介文" autocomplete="off">' +
-                            '</textarea></div><br>' +
-                            '所要時間：<input type="number" class="times" name="hours">時間<input type="number" class="times" name="minutes">分' +
-                            '<button name="spot" value="' + spotNum + '">このスポットを追加</button></form>'
-                    };
-
-                    // graphicを追加（カテゴリーごとに色が違う）
-                    if (spotCategory === "名所・史跡") {
-                        addGraphic("type1", mapPoint, mapPopUp);
-                    } else if (spotCategory === "公園・植物園") {
-                        addGraphic("type2", mapPoint, mapPopUp);
-                    } else if (spotCategory === "公共施設") {
-                        addGraphic("type3", mapPoint, mapPopUp);
-                    } else if (spotCategory === "飲食店") {
-                        addGraphic("type4", mapPoint, mapPopUp);
-                    } else if (spotCategory === "寺・神社") {
-                        addGraphic("type5", mapPoint, mapPopUp);
-                    } else if (spotCategory === "美術館・博物館") {
-                        addGraphic("type6", mapPoint, mapPopUp);
-                    } else if (spotCategory === "温泉") {
-                        addGraphic("type7", mapPoint, mapPopUp);
-                    } else if (spotCategory === "花見") {
-                        addGraphic("type8", mapPoint, mapPopUp);
-                    } else if (spotCategory === "祭り・イベント") {
-                        addGraphic("type9", mapPoint, mapPopUp);
-                    } else if (spotCategory === "テーマパーク") {
-                        addGraphic("type10", mapPoint, mapPopUp);
-                    } else {
-                        addGraphic("type0", mapPoint, mapPopUp);
-                    }
-                }
-            }
-
-            //--------------------------
-            // プランにあるスポットを表示
-            //--------------------------
-            addPlanSpotGraphic();
-
-            function addPlanSpotGraphic() {
-                for (let i = 0; i < planArray.length; i++) {
-                    planName = planArray[i]['spot_name']; //スポットの名称
-                    planLng = parseFloat(planArray[i]['spot_lng']); //スポットの緯度
-                    planLat = parseFloat(planArray[i]['spot_lat']); //スポットの経度
-                    planCategory = planArray[i]['category']; //スポットのカテゴリー
-                    planMemo = planArray[i]['memo']; //スポットの紹介文
-                    planImg = planArray[i]['spot_image']; //スポットの画像
-                    planHours = planArray[i]['hours']; //スポットの時間
-                    planMinutes = planArray[i]['minutes']; //スポットの分
-
-                    // 座標
-                    var mapPoint = {
-                        type: "point",
-                        longitude: planLng,
-                        latitude: planLat
-                    };
-
-                    // ポップアップ
-                    var mapPopUp = {
-                        title: planName + "<span class=\"spot_title_category\">（" + planCategory + "）</span>",
-                        content: ""
-                    };
-                    if (planImg != null) {
-                        mapPopUp.content = mapPopUp.content + "<img id=\"spot_image\" src=\"" + planImg +
-                            "\"><br><br>";
-                        console.log("planImg:" + planImg);
-                    }
-                    if (planMemo != "") {
-                        mapPopUp.content = mapPopUp.content + "<p>" + planMemo + "</p>";
-                        console.log("planMemo:" + planMemo);
-                    }
-                    if (planHours != "" || planMinutes != "") {
-                        mapPopUp.content = mapPopUp.content + "<p>所要時間：";
-                        if (planHours != "") {
-                            mapPopUp.content = mapPopUp.content + planHours + "時間";
-                            console.log("planHours:" + planHours);
-                        }
-                        if (planMinutes != "") {
-                            mapPopUp.content = mapPopUp.content + planMinutes + "分";
-                            console.log("planMinutes:" + planMinutes);
-                        }
-                        mapPopUp.content = mapPopUp.content + "</p>";
-                    }
-
-                    // graphicを追加（最初のスポットだけ色が違う）
-                    if (i == 0) {
-                        addGraphic("start", mapPoint, mapPopUp);
-                    } else {
-                        addGraphic("next", mapPoint, mapPopUp);
-                    }
-
-                }
-            }
-
-            function addGraphic(type, point, popUp) {
-                var graphic = new Graphic({
-                    symbol: {
-                        type: "simple-marker",
-                        color: (type === "type1") ? "#EDED9D" : (type === "type2") ? "#93ED9E" : (type ===
-                                "type3") ? "#B2C7ED" : (type === "type4") ? "#EDD29D" : (type === "type5") ?
-                            "#EDB5A8" : (type === "type6") ? "#CAABED" : (type === "type7") ? "#9DEDD8" : (
-                                type === "type8") ? "#F0D3DE" : (type === "type9") ? "#D9F5FD" : (type ===
-                                "type10") ? "#A3F7CC" : (type === "type0") ? "#cccccc" : (type ===
-                                "start") ? "white" : "red",
-                        size: "20px",
-                        outline: {
-                            color: (type === "start") ? "red" : "white",
-                            width: 1
-                        }
-                    },
-                    geometry: point,
-                    popupTemplate: popUp
-                });
-                view.graphics.add(graphic);
-            }
-
-        });
-    </script>
-    // {{-- -----------------------------------------------------
-    // ● ArcGIS for JavaScript に関する処理
-    // ----------------------------------------------------- --}}
-    <script language="javascript" type="text/javascript">
-        function loadLayers(layers) {
-            const ddLayerList = document.getElementById("ddLayerList");
-            layers.forEach(l => {
-                let o = document.createElement("option");
-                o.textContent = l.title;
-                o.layer = l;
-                ddLayerList.appendChild(o)
-            });
-        }
-
-        require([
-            "esri/WebMap",
-            "esri/views/MapView",
-            "esri/WebScene",
-            "esri/views/SceneView",
-            "esri/widgets/LayerList",
-            "esri/widgets/Search",
-            "esri/widgets/ScaleBar",
-            "esri/Graphic",
-            "esri/tasks/RouteTask",
-            "esri/tasks/support/RouteParameters",
-            "esri/tasks/support/FeatureSet"
-        ], function(WebMap, MapView, WebScene, SceneView, Search, LayerList) {
-            const map = new WebMap({
-                "portalItem": {
-                    "id": "93fde900d72a4d98aeb21826749bdfb2"
-                }
-            });
-            const mapView = new MapView({
-                "container": "divMapView",
-                "map": map
-            });
-            const scene = new WebScene({
-                "portalItem": {
-                    "id": "58d1da6134a447f29029d5f9fc6a54c2"
-                }
-            });
-            const sceneView = new SceneView({
-                "container": "SceneOsaka",
-                "map": scene
-            });
-            // Layer Widget
-            var layerList = new LayerList({
-                view: view,
-            })
-            // Search
-            // const searchWidget = new Search({
-            //     "view": mapView
-            // });
-            // view.ui.add(searchWidget, {
-            //     position: "top-left",
-            //     index: 2
-            // });
-            map.when(() => loadLayers(scene.layers))
-        });
-    </script>
+    {{-- 追加のJavaScriptがあれば取得 --}}
     @yield('script')
+
 </head>
 
 <body id="page-top">
@@ -527,7 +97,7 @@ $plan_array = json_encode($_SESSION['spot_plan']); //プランの情報
             <div id="content">
 
                 <!-- Topbar -->
-                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-md-4 static-top shadow">
+                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-lg-4 static-top shadow">
 
                     <!-- Sidebar Toggle (Topbar) -->
                     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
@@ -535,7 +105,7 @@ $plan_array = json_encode($_SESSION['spot_plan']); //プランの情報
                     </button>
 
                     <!-- Topber - Brand -->
-                    <a class="topbar-brand d-flex align-items-center justify-content-center" href="top">
+                    <a class="topbar-brand d-flex align-items-center justify-content-center" href="{{ route('/') }}">
                         <div class="sidebar-brand-icon d-none d-md-block">
                             <i class="fa-solid fa-person-walking"></i>
                         </div>
@@ -585,7 +155,7 @@ $plan_array = json_encode($_SESSION['spot_plan']); //プランの情報
 
                         <!-- Nav Item - Pages Collapse Menu -->
                         <li class="nav-item">
-                            <a class="nav-link collapsed" href="virtual-walking">
+                            <a class="nav-link collapsed" href="{{ route('virtual-walking') }}">
                                 <i class="fas fa-fw fa-person-walking"></i>
                                 <span class="mr-2 d-none d-xl-inline text-gray-600 small">街歩き体験</span>
                             </a>
@@ -593,21 +163,21 @@ $plan_array = json_encode($_SESSION['spot_plan']); //プランの情報
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link collapsed" href="making-plan">
+                            <a class="nav-link collapsed" href="{{ route('making-plan') }}">
                                 <i class="fas fa-fw fa-pen-to-square"></i>
-                                <span class="ml-1 mr-2 d-none d-xl-inline text-gray-600 small">旅程管理</span>
+                                <span class="ml-1 mr-2 d-none d-xl-inline text-gray-600 small">観光プランの作成</span>
                             </a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link collapsed" href="making-log">
+                            <a class="nav-link collapsed" href="{{ route('making-log') }}">
                                 <i class="fas fa-fw fa-map-location-dot"></i>
                                 <span class="ml-1 mr-2 d-none d-xl-inline text-gray-600 small"> 観光記録の作成</span>
                             </a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link collapsed" href="sharing-log">
+                            <a class="nav-link collapsed" href="{{ route('sharing-log') }}">
                                 <i class="fas fa-fw fa-handshake"></i>
                                 <span class="ml-1 mr-2 d-none d-xl-inline text-gray-600 small"> 観光記録の共有</span>
                             </a>
@@ -677,25 +247,22 @@ $plan_array = json_encode($_SESSION['spot_plan']); //プランの情報
                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <span
                                             class="mr-2 d-none d-lg-inline text-gray-600 small">{{ $user->name }}</span>
-                                        <img class="img-profile rounded-circle" src="img/undraw_profile.svg">
+                                        <img class="img-profile rounded-circle"
+                                            src="{{ asset('/img/undraw_profile.svg') }}">
                                     </a>
                                     <!-- Dropdown - User Information -->
                                     <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                                         aria-labelledby="userDropdown">
-                                        <a class="dropdown-item" href="#">
+                                        <a class="dropdown-item" href="{{ route('user.mypage') }}">
                                             <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                                            プロフィール
+                                            マイページ
                                         </a>
-                                        <a class="dropdown-item" href="#">
+                                        <a class="dropdown-item" href="{{ route('user.config') }}">
                                             <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
                                             設定
                                         </a>
-                                        <a class="dropdown-item" href="#">
-                                            <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
-                                            作成履歴
-                                        </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="#" data-toggle="modal"
+                                        <a class="dropdown-item" href="{{ route('logout') }}" data-toggle="modal"
                                             data-target="#logoutModal">
                                             <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                                             ログアウト

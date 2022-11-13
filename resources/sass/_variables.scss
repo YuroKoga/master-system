@@ -5,3 +5,56 @@ $body-bg: #f8fafc;
 $font-family-sans-serif: 'Nunito', sans-serif;
 $font-size-base: 0.9rem;
 $line-height-base: 1.6;
+// // Required
+// @import "bootstrap/bootstrap.scss";
+
+// // own color
+// $event:      #e94709;
+// $firework: #92114a;
+// $food:     #ed1c24;
+// $hanami:   #e49ec4;
+// $illumination:#fdd23e;
+// $museum:   #ed1c24;
+// $nature:   #006d4d;
+// $other:    #b4cf8f;
+// $park:     #b8d200;
+// $popular:  #fcc800;
+// $spa:      #898b65;
+// $temple:   #b7282d;
+// $themepark:#8f5f8f;
+
+// // $theme-colors: (
+// //     // originals
+// //     "event":      $event,
+// //     "firework": $firework,
+// //     "food":     $food,
+// //     "hanami":   $hanami,
+// //     "illumination":$illumination,
+// //     "museum":   $museum,
+// //     "nature":   $nature,
+// //     "other":    $other,
+// //     "park":     $park,
+// //     "popular":  $popular,
+// //     "spa":      $spa,
+// //     "temple":   $temple,
+// //     "themepark":$themepark,
+// // );
+// // Create your own map
+// $custom-colors: (
+//     "event":      $event,
+//     "firework": $firework,
+//     "food":     $food,
+//     "hanami":   $hanami,
+//     "illumination":$illumination,
+//     "museum":   $museum,
+//     "nature":   $nature,
+//     "other":    $other,
+//     "park":     $park,
+//     "popular":  $popular,
+//     "spa":      $spa,
+//     "temple":   $temple,
+//     "themepark":$themepark,
+// );
+
+// // Merge the maps
+// $theme-colors: map-merge($theme-colors, $custom-colors);

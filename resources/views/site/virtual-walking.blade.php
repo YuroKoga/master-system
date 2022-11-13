@@ -1,252 +1,40 @@
 @extends('layouts.new-master')
-@section('page_title')
-    バーチャル街歩き体験
-@endsection
-@section('script')
-@endsection
 
+{{-- ページ内容 --}}
 @section('content')
-    <!-- Page Heading -->
-    <div class="d-none d-md-flex px-md-4 align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">バーチャル街歩き体験</h1>
-        <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
-                class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
-    </div>
+    <!-- トップ画面の画像 -->
+    <div class="jumbotron mb-4"
+        style="background: url({{ asset('img/top-sumbnail/takoyaki.jpg') }}) center no-repeat; background-size: cover;">
+        <div class="container">
+            <h1 class="h1 text-white">バーチャル街歩き</h1>
+            <p class="text-white">バーチャル空間の都市内を周遊して，観光の下見ができるシステムです．</p>
 
+        </div>
+    </div>
     <!-- Content Row -->
     <div class="row">
-
-        <!-- GISを表示するカード -->
-        <div class="col-xl-9 col-lg-8 mh-100">
-            <div class="card shadow mb-0" style="height: calc(100vh - 250px);">
-                <!-- Card Header - Dropdown -->
-                <div class="card-header d-flex flex-row align-items-center justify-content-between">
-                    <!-- タブ -->
-                    <ul class="nav nav-pills card-header-pills" id="mapTab" role="tablist">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="#pills-2Dmap" id="pills-2Dmap-tab" data-toggle="pill"
-                                role="tab" aria-controls="pills-2Dmap" aria-selected="true">2Dマップ</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#pills-3Dmap" id="pills-3Dmap-tab" data-toggle="pill" role="tab"
-                                aria-controls="pills-3Dmap" aria-selected="false">3Dマップ</a>
-                        </li>
-                    </ul>
-                    <!-- 以上タブ -->
-                    <!-- ドロップダウン -->
-                    <div class="dropdown no-arrow">
-                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                            aria-labelledby="dropdownMenuLink">
-                            <div class="dropdown-header">Dropdown Header:</div>
-                            <a class="dropdown-item" href="#">Action</a>
-                            <a class="dropdown-item" href="#">Another action</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#">Something else here</a>
-                        </div>
-                    </div>
-                    <!-- 以上ドロップダウン -->
-                </div>
-
-                <!-- Card Body -->
-                <div class="card-body p-0">
-                    <!-- タブの内容 -->
-                    <div class="tab-content" id="pills-mapTabContent" style="height: 100%;">
-                        <!-- 2Dマップタブ -->
-                        <div class="tab-pane fade show active" id="pills-2Dmap" role="tabpanel"
-                            aria-labelledby="pills-2Dmap-tab" style="height: 100%;">
-                            <!-- 2Dマップ を表示する要素 -->
-                            <div id="divMapView" style="height: 100%;"></div>
-                        </div>
-                        <!-- 3Dマップタブ -->
-                        <div class="tab-pane fade" id="pills-3Dmap" role="tabpanel" aria-labelledby="pills-3Dmap-tab">
-                            <!-- 3Dマップ を表示する要素 -->
-                            <div id='SceneOsaka' style="height: calc(100vh - 417px);"></div>
-                            <!-- Play Button -->
-                            <div class="card bg-Secondary shadow h-50 py-0">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col-auto mx-auto text-center">
-                                            <i class="fas fa-backward fa-2x text-gray-600 w-100"></i>
-                                            <span class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                                backward</span>
-                                        </div>
-                                        <div class="col-auto mx-auto text-center">
-                                            <i class="fas fa-play fa-2x text-gray-600 w-100"></i>
-                                            <span class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                                play</span>
-                                        </div>
-                                        <div class="col-auto mx-auto text-center">
-                                            <i class="fas fa-forward fa-2x text-gray-600 w-100"></i>
-                                            <span class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                                fast</span>
-                                        </div>
-                                        <div class="col-auto mx-auto text-center">
-                                            <i class="fas fa-pause fa-2x text-gray-600 w-100"></i>
-                                            <span class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                                pause</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-
-        </div>
-
-        <!-- Plan Timeline-->
-        <div class="col-xl-3 col-lg-4">
-            <div class="card shadow mb-4" style="height: calc(100vh - 250px);">
-                <!-- Card Header - Dropdown -->
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Timeline</h6>
-                    <div class="dropdown no-arrow">
-                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                            aria-labelledby="dropdownMenuLink">
-                            <div class="dropdown-header">Dropdown Header:</div>
-                            <a class="dropdown-item" href="#">Action</a>
-                            <a class="dropdown-item" href="#">Another action</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#">Something else here</a>
-                        </div>
-                    </div>
-                </div>
-                <!-- Card Body -->
+        <div class="col">
+            <div class="card shadow m-0 mb-lg-4">
                 <div class="card-body">
-                    <div class="overflow-auto" style="height:100%;">
+                    <div class="align-items-center">
+                        {{-- プランメモ --}}
+                        <p class="text-gray-800">
+                            各観光プラン・観光記録から機能を利用することができます。
+                        </p>
+                        <a href="{{ route('user.mypage') }}" class="btn btn-primary mr-2 mb-2">マイページ &raquo</a>
+                        <p class="text-gray-800">
+                            【利用方法】<br>
+                            マイページ &raquo 今後の旅程 &raquo 作成したプランの詳細ボタン &raquo ”3Dマップ”タブ
+                        </p>
+                        <a href="{{ route('sharing-log') }}" class="btn btn-primary mb-2">観光記録リスト &raquo</a>
+                        <p class="text-gray-800">
+                            【利用方法】<br>
+                            観光記録リスト &raquo 観光記録の詳細ボタン &raquo ”3Dマップ”タブ
+                        </p>
 
-                        <!-- One Spot -->
-                        <div class="mb-2">
-                            <div class="card border-left-info h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                                カテゴリ</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">通天閣</div>
-                                        </div>
-                                        <!-- Icon -->
-                                        <div class="col-auto">
-                                            <i class="fas fa-vihara fa-2x text-gray-300"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- One Spot -->
-                        <div class="mb-2">
-                            <div class="card border-left-info h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                                カテゴリ</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">新世界</div>
-                                        </div>
-                                        <!-- Icon -->
-                                        <div class="col-auto">
-                                            <i class="fas fa-utensils fa-2x text-gray-300"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mb-2">
-                            <div class="card border-left-info h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                                カテゴリ</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">大阪城</div>
-                                        </div>
-                                        <!-- Icon -->
-                                        <div class="col-auto">
-                                            <i class="fas fa-vihara fa-2x text-gray-300"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mb-2">
-                            <div class="card border-left-info h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                                カテゴリ</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">大阪天満宮</div>
-                                        </div>
-                                        <!-- Icon -->
-                                        <div class="col-auto">
-                                            <i class="fas fa-vihara fa-2x text-gray-300"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mb-2">
-                            <div class="card border-left-info h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                                カテゴリ</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">天神橋筋商店街</div>
-                                        </div>
-                                        <!-- Icon -->
-                                        <div class="col-auto">
-                                            <i class="fas fa-utensils fa-2x text-gray-300"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mb-2">
-                            <div class="card border-left-info h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                                カテゴリ</div>
-                                            <div class="h5 mb-0 font-weight-bold text-gray-800">裏天満</div>
-                                        </div>
-                                        <!-- Icon -->
-                                        <div class="col-auto">
-                                            <i class="fas fa-utensils fa-2x text-gray-300"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- 繰り返し -->
-                        <?php for($i=1;$i<=10;$i++){ ?>
-                        <?php } ?>
-                        <div class="mt-4 text-center small">
-                            <span class="mr-2">
-                                <i class="fas fa-circle text-primary"></i> 寺・神社
-                            </span>
-                            <span class="mr-2">
-                                <i class="fas fa-circle text-success"></i> 名所・史跡
-                            </span>
-                            <span class="mr-2">
-                                <i class="fas fa-circle text-info"></i> コンビニ
-                            </span>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- End of Plan Timeline -->
-    @endsection
+    </div>
+@endsection

@@ -16,8 +16,8 @@ return new class extends Migration
         Schema::create('spots', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
-            $table->float('lngitude', 8);
             $table->float('latitude', 8);
+            $table->float('longitude', 8);
             $table->integer('category_id')->unsigned();
             $table->integer('user_id')->unsigned();
             $table->boolean('status')->default(true); // デフォルトtrue→trueならアクセス
@@ -35,3 +35,4 @@ return new class extends Migration
         Schema::dropIfExists('spots');
     }
 };
+

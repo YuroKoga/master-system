@@ -19,13 +19,20 @@
 
                 <!-- タブ -->
                 <ul class="nav nav-pills card-header-pills" id="databaseTab" role="tablist">
+                    <!-- タブ１ -->
                     <li class="nav-item">
                         <a class="nav-link active" href="#pills-users" id="pills-users-tab" data-toggle="pill" role="tab"
                             aria-controls="pills-users" aria-selected="true">ユーザー</a>
                     </li>
+                    <!-- タブ２ -->
                     <li class="nav-item">
                         <a class="nav-link" href="#pills-spots" id="pills-spots-tab" data-toggle="pill" role="tab"
                             aria-controls="pills-spots" aria-selected="false">スポット</a>
+                    </li>
+                    <!-- タブ３ -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="#pills-categories" id="pills-categories-tab" data-toggle="pill"
+                            role="tab" aria-controls="pills-categories" aria-selected="false">カテゴリー</a>
                     </li>
                 </ul>
                 <!-- 以上タブ -->
@@ -67,25 +74,27 @@
                         </div>
                         <!-- テーブルここまで -->
                     </div>
-                    <!-- タブ２のコンテンツ(spot_table) -->
+                    <!-- タブ１ここまで -->
+
+                    {{-- //////////////////////////// --}}
+                    {{--                              --}}
+                    {{-- タブ２のコンテンツ(spot_table) --}}
+                    {{--                              --}}
+                    {{-- //////////////////////////// --}}
+
                     <div class="tab-pane fade" id="pills-spots" role="tabpanel" aria-labelledby="pills-spots-tab">
-                        <form type="post">
-                            <button>csv->database</button>
+
+                        {{-- メッセージ --}}
+                        <div class="text">{{ $cnt }}件登録しました。</div>
+
+                        {{-- csvファイルのアップロード --}}
+                        <form action="/database/spot" method="post" enctype="multipart/form-data">
+                            @csrf
+                            CSVファイル：<br />
+                            <input type="file" name="csvfile" /><br />
+                            <input type="submit" value="アップロード" />
                         </form>
-                        <?php
-                        $f = fopen('csv/spotlist_osaka.csv', 'r');
-                        $i = 0;
-                        while ($row = fgetcsv($f)) {
-                            $spot_array[$i]['No'] = $row[0]; //Noを取得
-                            $spot_array[$i]['name'] = $row[1]; //nameを取得
-                            $spot_array[$i]['spot_lat'] = $row[2]; //spot_lat(経度)を取得
-                            $spot_array[$i]['spot_lng'] = $row[3]; //spot_lng(緯度)を取得
-                            // $spot_array[$i]['category'] = $row[4]; //categoryを取得
-                            // $spot_array[$i]['visible'] = $row[6]; // 表示するかどうかの値を取得
-                            ++$i;
-                        }
-                        fclose($f);
-                        ?>
+
                         <!-- テーブル -->
                         <div class="table-responsive">
                             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
@@ -93,26 +102,94 @@
                                     <tr>
                                         <th>id</th>
                                         <th>Name</th>
+                                        <th>Address</th>
                                         <th>spot_lat</th>
                                         <th>spot_lng</th>
+                                        <th>category_id</th>
+                                        <th>reviews</th>
+                                        <th>url</th>
+                                        <th>delete</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {{ $i = 1 }}
-                                    @foreach ($spot_array as $spots)
+                                    @foreach ($spots as $val)
                                         <tr>
-                                            <td>{{ $spot_array[$i]['No'] }}</td>
-                                            <td>{{ $spot_array[$i]['name'] }}</td>
-                                            <td>{{ $spot_array[$i]['spot_lat'] }}</td>
-                                            <td>{{ $spot_array[$i]['spot_lng'] }}</td>
+                                            <td>{{ $val->id }}</td>
+                                            <td>{{ $val->name }}</td>
+                                            <td>{{ $val->address }}</td>
+                                            <td>{{ $val->latitude }}</td>
+                                            <td>{{ $val->longitude }}</td>
+                                            <td>{{ $val->category_id }}</td>
+                                            <td>{{ $val->reviews }}</td>
+                                            <td>{{ $val->url }}</td>
+                                            <td>
+                                                <form action="database/spot/delete/{{ $val->id }}" method="post">
+                                                    @csrf
+                                                    <input type="submit" class="btn btn-danger btn-dell" value="削除">
+                                                </form>
+                                            </td>
+                                            {{-- <td>{{ $spot_array[$loop->index]['No'] }}</td>
+                                            <td>{{ $spot_array[$loop->index]['name'] }}</td>
+                                            <td>{{ $spot_array[$loop->index]['spot_lat'] }}</td>
+                                            <td>{{ $spot_array[$loop->index]['spot_lng'] }}</td> --}}
                                         </tr>
-                                        {{ $i++ }}
                                     @endforeach
                                 </tbody>
                             </table>
                         </div>
                         <!-- テーブルここまで -->
                     </div>
+                    <!-- タブ２ここまで -->
+                    {{-- //////////////////////////// --}}
+                    {{--                              --}}
+                    {{-- タブ３のコンテンツ(category_list_table) --}}
+                    {{--                              --}}
+                    {{-- //////////////////////////// --}}
+
+                    <div class="tab-pane fade" id="pills-categories" role="tabpanel" aria-labelledby="pills-categories-tab">
+
+                        {{-- csvファイルのアップロード --}}
+                        <form action="/database/category" method="post" enctype="multipart/form-data">
+                            @csrf
+                            新しいカテゴリー：<br />
+                            <input type="text" name="category_name" />
+                            <input type="submit" value="登録" />
+                        </form>
+
+                        <!-- テーブル -->
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>id</th>
+                                        <th>Name</th>
+                                        <th>user_id</th>
+                                        <th>delete</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($categories as $val)
+                                        {{-- @if ($loop->index == 0)
+                                            @continue
+                                        @endif --}}
+                                        <tr>
+                                            <td>{{ $val->id }}</td>
+                                            <td>{{ $val->name }}</td>
+                                            <td>{{ $val->user_id }}</td>
+                                            <td>
+                                                <form action="database/category/delete/{{ $val->id }}" method="post">
+                                                    @csrf
+                                                    <input type="submit" class="btn btn-danger btn-dell" value="削除">
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- テーブルここまで -->
+                    </div>
+                    <!-- タブ２ここまで -->
                 </div>
             </div>
         </div>

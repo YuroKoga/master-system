@@ -79,3 +79,35 @@ $dropdown-border-color: $border-color !default;
 $login-image: 'https://source.unsplash.com/K4mSJ7kc0As/600x800' !default;
 $register-image: 'https://source.unsplash.com/Mv9hjnEUHR4/600x800' !default;
 $password-image: 'https://source.unsplash.com/oWTW-jNGl9I/600x800' !default;
+
+// own color
+$event:      #e94709;
+$firework: #92114a;
+$food:     #ed1c24;
+$hanami:   #e49ec4;
+$illumination:#fdd23e;
+$museum:   #ed1c24;
+$nature:   #006d4d;
+$other:    #b4cf8f;
+$park:     #b8d200;
+$popular:  #fcc800;
+$spa:      #898b65;
+$temple:   #b7282d;
+$themepark:#8f5f8f;
+
+$theme-colors: (
+    // originals
+    "event":      $event,
+    "firework": $firework,
+    "food":     $food,
+    "hanami":   $hanami,
+    "illumination":$illumination,
+    "museum":   $museum,
+    "nature":   $nature,
+    "other":    $other,
+    "park":     $park,
+    "popular":  $popular,
+    "spa":      $spa,
+    "temple":   $temple,
+    "themepark":$themepark,
+);

@@ -14,13 +14,12 @@
         rel="stylesheet">
 
     <!-- Custom styles for this template-->
-    <link href="{{ asset('css/sb-admin-2.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/sb-admin-2.css') }}" rel="stylesheet">
+
     <!-- Bootstrap core JavaScript-->
     <script src="{{ asset('js/jquery/jquery.min.js') }}"></script>
 
-
     <!-- JavaScript -->
-
     <script src="{{ asset('js/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 
     <!-- Core plugin JavaScript-->
